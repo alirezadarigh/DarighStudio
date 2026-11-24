@@ -1,0 +1,13 @@
+
+const items=window.PORTFOLIO_ITEMS||[], gallery=document.getElementById('gallery'), filters=document.getElementById('filters'), count=document.getElementById('count');
+const categories=['All',...new Set(items.map(x=>x.category))];let active='All',current=0,visible=[];
+categories.forEach(cat=>{const b=document.createElement('button');b.className='filter'+(cat==='All'?' active':'');b.dataset.filter=cat;b.innerHTML=cat==='All'?'All work <span>—</span>':cat;b.addEventListener('click',()=>{active=cat;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x.dataset.filter===cat));render()});filters.appendChild(b)});
+function render(){visible=items.filter(x=>active==='All'||x.category===active);gallery.innerHTML='';visible.forEach((x,i)=>{const b=document.createElement('button');b.className='project';b.innerHTML=`<img loading="lazy" src="${x.image}" alt="${x.category} portfolio artwork, page ${x.page}"><div class="project-info"><span>${x.category}</span><small>PROJECT ${String(i+1).padStart(2,'0')} ↗</small></div>`;b.addEventListener('click',()=>openLightbox(i));gallery.appendChild(b)});count.textContent=`${visible.length} PROJECTS`;}
+const lb=document.getElementById('lightbox'),lbImg=document.getElementById('lightbox-img'),caption=document.getElementById('lightbox-caption');
+function openLightbox(i){current=i;updateLightbox();lb.classList.add('open');lb.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
+function updateLightbox(){const x=visible[current];lbImg.src=x.image;lbImg.alt=x.category;caption.textContent=`${x.category} · Portfolio page ${x.page} · ${current+1} of ${visible.length}`}
+function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+document.querySelector('.close').onclick=close;document.querySelector('.prev').onclick=()=>{current=(current-1+visible.length)%visible.length;updateLightbox()};document.querySelector('.next').onclick=()=>{current=(current+1)%visible.length;updateLightbox()};
+lb.addEventListener('click',e=>{if(e.target===lb)close()});document.addEventListener('keydown',e=>{if(!lb.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')document.querySelector('.prev').click();if(e.key==='ArrowRight')document.querySelector('.next').click()});
+document.querySelector('.menu-toggle').onclick=()=>document.getElementById('nav').classList.toggle('show');document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>document.getElementById('nav').classList.remove('show')));
+document.getElementById('year').textContent=new Date().getFullYear();render();
